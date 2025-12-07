@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PWA pour la collecte d'enregistrements Audio, Vidéo, Images et Textes">
+    <meta name="theme-color" content="#2196F3">
+    <title>MemIA - Collecte Multimédia</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icons/icon-192x192.svg">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📱 MemIA</h1>
+            <p class="subtitle">Collecte d'enregistrements multimédia</p>
+        </header>
+
+        <main>
+            <!-- Section Audio -->
+            <section class="media-section">
+                <h2>🎤 Audio</h2>
+                <button id="audioBtn" class="capture-btn">Enregistrer Audio</button>
+                <div id="audioStatus" class="status"></div>
+                <audio id="audioPlayback" controls style="display:none;"></audio>
+            </section>
+
+            <!-- Section Vidéo -->
+            <section class="media-section">
+                <h2>🎥 Vidéo</h2>
+                <button id="videoBtn" class="capture-btn">Enregistrer Vidéo</button>
+                <div id="videoStatus" class="status"></div>
+                <video id="videoPreview" controls style="display:none;"></video>
+            </section>
+
+            <!-- Section Image -->
+            <section class="media-section">
+                <h2>📷 Image</h2>
+                <button id="imageBtn" class="capture-btn">Prendre une Photo</button>
+                <input type="file" id="imageInput" accept="image/*" capture="environment" style="display:none;">
+                <div id="imageStatus" class="status"></div>
+                <img id="imagePreview" style="display:none; max-width:100%; margin-top:10px;">
+            </section>
+
+            <!-- Section Texte -->
+            <section class="media-section">
+                <h2>📝 Texte</h2>
+                <textarea id="textInput" placeholder="Entrez votre texte ici..." rows="5"></textarea>
+                <button id="textBtn" class="capture-btn">Sauvegarder Texte</button>
+                <div id="textStatus" class="status"></div>
+            </section>
+
+            <!-- Liste des enregistrements -->
+            <section class="media-section">
+                <h2>📋 Mes Enregistrements</h2>
+                <div id="recordingsList" class="recordings-list"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p id="installMessage" style="display:none;">
+                💡 Vous pouvez installer cette app sur votre appareil !
+            </p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    opacity: 0.9;
+    font-size: 1.1em;
+}
+
+main {
+    padding: 30px;
+}
+
+.media-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+}
+
+.media-section h2 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.capture-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    font-weight: 600;
+}
+
+.capture-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.capture-btn:active {
+    transform: translateY(0);
+}
+
+.capture-btn.recording {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.status {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    display: none;
+}
+
+.status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    display: block;
+}
+
+.status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    display: block;
+}
+
+.status.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+    display: block;
+}
+
+#textInput {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    margin-bottom: 10px;
+    resize: vertical;
+}
+
+#textInput:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+video, audio {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+.recordings-list {
+    display: grid;
+    gap: 10px;
+}
+
+.recording-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recording-item button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.recording-item button:hover {
+    background: #c82333;
+}
+
+footer {
+    padding: 20px;
+    text-align: center;
+    background: #f8f9fa;
+    color: #666;
+}
+
+#installMessage {
+    background: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ffeeba;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 2em;
+    }
+
+    main {
+        padding: 15px;
+    }
+}
