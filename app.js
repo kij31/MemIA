@@ -254,6 +254,9 @@ async function saveRecording(type, data) {
     recordings.unshift(recording);
     localStorage.setItem('recordings', JSON.stringify(recordings));
     displayRecordings();
+
+    // Afficher le popup de validation
+    showValidationPopup(recording.id);
 }
 
 function openValidationModal(id) {
@@ -299,6 +302,39 @@ function saveValidation() {
         displayRecordings();
         closeModal();
     }
+}
+
+// ========== POPUP DE CONFIRMATION ==========
+function showValidationPopup(recordingId) {
+    const popup = document.getElementById('confirmValidationPopup');
+    const btnYes = document.getElementById('popupYes');
+    const btnNo = document.getElementById('popupNo');
+
+    // Afficher le popup
+    popup.style.display = 'flex';
+
+    // Gérer le clic sur "Oui"
+    btnYes.onclick = () => {
+        closeValidationPopup();
+        openValidationModal(recordingId);
+    };
+
+    // Gérer le clic sur "Non"
+    btnNo.onclick = () => {
+        closeValidationPopup();
+    };
+
+    // Fermer si on clique en dehors
+    popup.onclick = (e) => {
+        if (e.target === popup) {
+            closeValidationPopup();
+        }
+    };
+}
+
+function closeValidationPopup() {
+    const popup = document.getElementById('confirmValidationPopup');
+    popup.style.display = 'none';
 }
 
 function changeStatus(id, newStatus) {
@@ -478,7 +514,6 @@ function createRecordingCard(rec) {
             <div class="recording-actions">
                 <button onclick="playRecording(${rec.id})" class="btn-play" title="Lire">▶️ Lire</button>
                 <button onclick="openValidationModal(${rec.id})" class="btn-validate" title="Valider">✓ Valider</button>
-                <button onclick="changeStatus(${rec.id}, 'error')" class="btn-error" title="Marquer comme erreur">⚠️</button>
                 <button onclick="deleteRecording(${rec.id})" class="btn-delete" title="Supprimer">🗑️</button>
             </div>
         </div>
