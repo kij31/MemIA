@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Application de collecte de souvenirs multimédia pour personnes atteintes d'Alzheimer" />
+    <meta name="theme-color" content="#a855f7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Soussou" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Soussou Souvenirs" />
+    <meta property="og:description" content="Partagez vos précieux souvenirs" />
+    <meta property="og:image" content="/icons/icon-512x512.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Soussou Souvenirs" />
+    <meta name="twitter:description" content="Partagez vos précieux souvenirs" />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <title>Soussou Souvenirs</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Offline fallback message (shown only if JS fails to load) -->
+    <noscript>
+      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; text-align: center; font-family: sans-serif;">
+        <div>
+          <h1 style="color: #a855f7; margin-bottom: 16px;">Soussou Souvenirs</h1>
+          <p style="color: #666;">Cette application nécessite JavaScript pour fonctionner.</p>
+          <p style="color: #666; margin-top: 8px;">Veuillez activer JavaScript dans votre navigateur.</p>
+        </div>
+      </div>
+    </noscript>
+  </body>
+</html>
