@@ -13,6 +13,22 @@ let audioChunks = [];
 let videoRecorder = null;
 let videoChunks = [];
 let recordings = JSON.parse(localStorage.getItem('recordings') || '[]');
+let currentEditingId = null;
+
+// Liste des occasions (pour la liste déroulante)
+const occasions = [
+    'Mariage',
+    'Anniversaire',
+    'Baptême',
+    'Communion',
+    'Fête familiale',
+    'Réunion',
+    'Conférence',
+    'Interview',
+    'Témoignage',
+    'Formation',
+    'Autre'
+];
 
 // Installation du PWA
 let deferredPrompt;
@@ -162,6 +178,45 @@ textBtn.addEventListener('click', () => {
     }
 });
 
+// ========== MODAL DE VALIDATION ==========
+const modal = document.getElementById('validationModal');
+const modalClose = document.getElementById('modalClose');
+const validationForm = document.getElementById('validationForm');
+
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+});
+
+validationForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveValidation();
+});
+
+// Autocomplétion pour le champ Nom
+const nomInput = document.getElementById('nomContributeur');
+const nomDatalist = document.getElementById('nomSuggestions');
+
+nomInput.addEventListener('input', () => {
+    updateNomSuggestions();
+});
+
+function updateNomSuggestions() {
+    const noms = new Set();
+    recordings.forEach(rec => {
+        if (rec.metadata && rec.metadata.nom) {
+            noms.add(rec.metadata.nom);
+        }
+    });
+
+    nomDatalist.innerHTML = '';
+    noms.forEach(nom => {
+        const option = document.createElement('option');
+        option.value = nom;
+        nomDatalist.appendChild(option);
+    });
+}
+
 // ========== FONCTIONS UTILITAIRES ==========
 function showStatus(element, message, type) {
     element.textContent = message;
@@ -180,7 +235,15 @@ async function saveRecording(type, data) {
         id: Date.now(),
         type: type,
         date: new Date().toLocaleString('fr-FR'),
-        data: type === 'text' ? data : null
+        status: 'pending', // pending, validated, error
+        data: type === 'text' ? data : null,
+        metadata: {
+            nom: '',
+            prenom: '',
+            dateEvenement: '',
+            lieuEvenement: '',
+            occasion: ''
+        }
     };
 
     // Pour les fichiers blob, on les stocke dans IndexedDB
@@ -193,24 +256,114 @@ async function saveRecording(type, data) {
     displayRecordings();
 }
 
-function displayRecordings() {
-    const list = document.getElementById('recordingsList');
-    if (recordings.length === 0) {
-        list.innerHTML = '<p style="color:#999;">Aucun enregistrement pour le moment.</p>';
-        return;
-    }
+function openValidationModal(id) {
+    currentEditingId = id;
+    const recording = recordings.find(r => r.id === id);
 
-    list.innerHTML = recordings.map(rec => `
-        <div class="recording-item">
-            <div>
-                <strong>${getTypeIcon(rec.type)} ${rec.type.toUpperCase()}</strong>
-                <br>
-                <small>${rec.date}</small>
-                ${rec.type === 'text' ? `<br><small>${rec.data.substring(0, 50)}...</small>` : ''}
-            </div>
-            <button onclick="deleteRecording(${rec.id})">Supprimer</button>
-        </div>
-    `).join('');
+    if (recording) {
+        // Pré-remplir le formulaire
+        document.getElementById('nomContributeur').value = recording.metadata.nom || '';
+        document.getElementById('prenomContributeur').value = recording.metadata.prenom || '';
+        document.getElementById('dateEvenement').value = recording.metadata.dateEvenement || '';
+        document.getElementById('lieuEvenement').value = recording.metadata.lieuEvenement || '';
+        document.getElementById('occasionEvenement').value = recording.metadata.occasion || '';
+
+        modal.style.display = 'flex';
+        updateNomSuggestions();
+    }
+}
+
+function closeModal() {
+    modal.style.display = 'none';
+    validationForm.reset();
+    currentEditingId = null;
+}
+
+function saveValidation() {
+    if (!currentEditingId) return;
+
+    const recording = recordings.find(r => r.id === currentEditingId);
+    if (recording) {
+        recording.metadata = {
+            nom: document.getElementById('nomContributeur').value.trim(),
+            prenom: document.getElementById('prenomContributeur').value.trim(),
+            dateEvenement: document.getElementById('dateEvenement').value,
+            lieuEvenement: document.getElementById('lieuEvenement').value.trim(),
+            occasion: document.getElementById('occasionEvenement').value
+        };
+
+        // Passer en statut validé
+        recording.status = 'validated';
+
+        localStorage.setItem('recordings', JSON.stringify(recordings));
+        displayRecordings();
+        closeModal();
+    }
+}
+
+function changeStatus(id, newStatus) {
+    const recording = recordings.find(r => r.id === id);
+    if (recording) {
+        recording.status = newStatus;
+        localStorage.setItem('recordings', JSON.stringify(recordings));
+        displayRecordings();
+    }
+}
+
+async function playRecording(id) {
+    const recording = recordings.find(r => r.id === id);
+    if (!recording) return;
+
+    if (recording.type === 'text') {
+        alert(recording.data);
+    } else {
+        // Récupérer le blob depuis IndexedDB
+        const blob = await getFromIndexedDB(id);
+        if (blob) {
+            const url = URL.createObjectURL(blob);
+
+            // Créer un élément de lecture temporaire
+            let player;
+            if (recording.type === 'audio') {
+                player = document.createElement('audio');
+            } else if (recording.type === 'video') {
+                player = document.createElement('video');
+            } else if (recording.type === 'image') {
+                window.open(url, '_blank');
+                return;
+            }
+
+            if (player) {
+                player.controls = true;
+                player.src = url;
+                player.style.maxWidth = '100%';
+
+                const playerContainer = document.getElementById('playerContainer');
+                playerContainer.innerHTML = '';
+                playerContainer.appendChild(player);
+                playerContainer.style.display = 'block';
+                player.play();
+            }
+        }
+    }
+}
+
+function deleteRecording(id) {
+    if (confirm('Voulez-vous vraiment supprimer cet enregistrement ?')) {
+        recordings = recordings.filter(rec => rec.id !== id);
+        localStorage.setItem('recordings', JSON.stringify(recordings));
+        deleteFromIndexedDB(id);
+        displayRecordings();
+    }
+}
+
+function getStatusIcon(status) {
+    const icons = {
+        pending: '<span class="status-icon pending" title="En cours de validation">ℹ️</span>',
+        validated: '<span class="status-icon validated" title="Validé">✅</span>',
+        error: '<span class="status-icon error" title="Erreur">⚠️</span>'
+    };
+    return icons[status] || icons.pending;
 }
 
 function getTypeIcon(type) {
@@ -223,11 +376,113 @@ function getTypeIcon(type) {
     return icons[type] || '📄';
 }
 
-function deleteRecording(id) {
-    recordings = recordings.filter(rec => rec.id !== id);
-    localStorage.setItem('recordings', JSON.stringify(recordings));
-    deleteFromIndexedDB(id);
-    displayRecordings();
+function displayRecordings() {
+    const list = document.getElementById('recordingsList');
+    const groupBySelect = document.getElementById('groupBySelect');
+
+    if (recordings.length === 0) {
+        list.innerHTML = '<p style="color:#999;">Aucun enregistrement pour le moment.</p>';
+        return;
+    }
+
+    const groupBy = groupBySelect.value;
+
+    if (groupBy === 'contributeur') {
+        displayByContributor();
+    } else if (groupBy === 'status') {
+        displayByStatus();
+    } else {
+        displayAll();
+    }
+}
+
+function displayAll() {
+    const list = document.getElementById('recordingsList');
+    list.innerHTML = recordings.map(rec => createRecordingCard(rec)).join('');
+}
+
+function displayByContributor() {
+    const list = document.getElementById('recordingsList');
+    const grouped = {};
+
+    recordings.forEach(rec => {
+        const contributeur = rec.metadata.nom || 'Sans contributeur';
+        if (!grouped[contributeur]) {
+            grouped[contributeur] = [];
+        }
+        grouped[contributeur].push(rec);
+    });
+
+    let html = '';
+    Object.keys(grouped).sort().forEach(contributeur => {
+        html += `
+            <div class="contributor-group">
+                <h3 class="contributor-name">👤 ${contributeur} (${grouped[contributeur].length})</h3>
+                <div class="recordings-group">
+                    ${grouped[contributeur].map(rec => createRecordingCard(rec)).join('')}
+                </div>
+            </div>
+        `;
+    });
+
+    list.innerHTML = html;
+}
+
+function displayByStatus() {
+    const list = document.getElementById('recordingsList');
+    const statuses = {
+        pending: { label: 'En cours de validation', items: [] },
+        validated: { label: 'Validés', items: [] },
+        error: { label: 'Erreurs', items: [] }
+    };
+
+    recordings.forEach(rec => {
+        statuses[rec.status].items.push(rec);
+    });
+
+    let html = '';
+    Object.keys(statuses).forEach(status => {
+        if (statuses[status].items.length > 0) {
+            html += `
+                <div class="status-group">
+                    <h3 class="status-group-title">${getStatusIcon(status)} ${statuses[status].label} (${statuses[status].items.length})</h3>
+                    <div class="recordings-group">
+                        ${statuses[status].items.map(rec => createRecordingCard(rec)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    list.innerHTML = html || '<p style="color:#999;">Aucun enregistrement.</p>';
+}
+
+function createRecordingCard(rec) {
+    const contributeurInfo = rec.metadata.nom
+        ? `<div class="metadata-preview">
+              <strong>👤 ${rec.metadata.nom} ${rec.metadata.prenom}</strong>
+              ${rec.metadata.occasion ? `<br><small>📌 ${rec.metadata.occasion}</small>` : ''}
+              ${rec.metadata.lieuEvenement ? `<br><small>📍 ${rec.metadata.lieuEvenement}</small>` : ''}
+           </div>`
+        : '';
+
+    return `
+        <div class="recording-item ${rec.status}">
+            <div class="recording-header">
+                ${getStatusIcon(rec.status)}
+                <span class="recording-type">${getTypeIcon(rec.type)} ${rec.type.toUpperCase()}</span>
+                <small class="recording-date">${rec.date}</small>
+            </div>
+            ${contributeurInfo}
+            ${rec.type === 'text' && rec.data ? `<div class="text-preview">"${rec.data.substring(0, 80)}..."</div>` : ''}
+            <div class="recording-actions">
+                <button onclick="playRecording(${rec.id})" class="btn-play" title="Lire">▶️ Lire</button>
+                <button onclick="openValidationModal(${rec.id})" class="btn-validate" title="Valider">✓ Valider</button>
+                <button onclick="changeStatus(${rec.id}, 'error')" class="btn-error" title="Marquer comme erreur">⚠️</button>
+                <button onclick="deleteRecording(${rec.id})" class="btn-delete" title="Supprimer">🗑️</button>
+            </div>
+        </div>
+    `;
 }
 
 // ========== INDEXEDDB ==========
@@ -258,6 +513,26 @@ async function saveToIndexedDB(id, blob) {
     }
 }
 
+async function getFromIndexedDB(id) {
+    try {
+        const db = await openDB();
+        const transaction = db.transaction(['recordings'], 'readonly');
+        const store = transaction.objectStore('recordings');
+        const request = store.get(id);
+
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                const result = request.result;
+                resolve(result ? result.blob : null);
+            };
+            request.onerror = () => reject(request.error);
+        });
+    } catch (err) {
+        console.error('Erreur IndexedDB:', err);
+        return null;
+    }
+}
+
 async function deleteFromIndexedDB(id) {
     try {
         const db = await openDB();
@@ -270,4 +545,5 @@ async function deleteFromIndexedDB(id) {
 }
 
 // Initialisation
+document.getElementById('groupBySelect').addEventListener('change', displayRecordings);
 displayRecordings();
