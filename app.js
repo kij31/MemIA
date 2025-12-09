@@ -645,8 +645,14 @@ function openRecordingView(recordingId) {
         ${recording.metadata.lieuEvenement ? `<p><strong>Lieu:</strong> ${recording.metadata.lieuEvenement}</p>` : ''}
     `;
 
-    // Gérer le bouton supprimer
-    document.getElementById('formDelete').onclick = () => deleteRecording(recordingId);
+    // Gérer le bouton supprimer (visible uniquement pour l'admin)
+    const deleteBtn = document.getElementById('formDelete');
+    if (isAdminLoggedIn) {
+        deleteBtn.style.display = 'inline-block';
+        deleteBtn.onclick = () => deleteRecording(recordingId);
+    } else {
+        deleteBtn.style.display = 'none';
+    }
 
     modal.style.display = 'flex';
 }
