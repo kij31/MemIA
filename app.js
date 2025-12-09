@@ -8,7 +8,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // Variables globales
-let recordings = JSON.parse(localStorage.getItem('recordings') || '[]');
+let recordings = []; // Sera chargé depuis Firestore
 let currentRecording = null; // Enregistrement en cours de création
 let tempMedias = { audios: [], videos: [], images: [], texts: [] }; // Médias temporaires
 
@@ -403,37 +403,48 @@ function closeEditModal() {
 document.getElementById('editModalClose').addEventListener('click', closeEditModal);
 
 // Event listener pour sauvegarder les modifications
-document.getElementById('editRecordingForm').addEventListener('submit', (e) => {
+document.getElementById('editRecordingForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const recordingId = parseInt(document.getElementById('editRecordingId').value);
+    const recordingId = document.getElementById('editRecordingId').value; // String ID Firestore
     const recording = recordings.find(r => r.id === recordingId);
 
     if (!recording) return;
 
-    // Mettre à jour les métadonnées
-    recording.metadata.nom = document.getElementById('editNom').value.trim();
-    recording.metadata.prenom = document.getElementById('editPrenom').value.trim();
-    recording.metadata.occasion = document.getElementById('editOccasion').value;
-    recording.metadata.dateEvenement = document.getElementById('editDate').value;
-    recording.metadata.lieuEvenement = document.getElementById('editLieu').value.trim();
+    try {
+        // Mettre à jour les métadonnées
+        const updatedMetadata = {
+            nom: document.getElementById('editNom').value.trim(),
+            prenom: document.getElementById('editPrenom').value.trim(),
+            occasion: document.getElementById('editOccasion').value,
+            dateEvenement: document.getElementById('editDate').value,
+            lieuEvenement: document.getElementById('editLieu').value.trim()
+        };
 
-    // Sauvegarder dans localStorage
-    localStorage.setItem('recordings', JSON.stringify(recordings));
+        // Mettre à jour dans Firestore
+        await db.collection('recordings').doc(recordingId).update({
+            metadata: updatedMetadata
+        });
 
-    // Fermer le modal et rafraîchir
-    closeEditModal();
-    displayRecordings();
+        console.log('✅ Enregistrement mis à jour dans Firestore:', recordingId);
 
-    alert('✅ Enregistrement modifié avec succès !');
+        // Fermer le modal et rafraîchir
+        closeEditModal();
+        await displayRecordings();
+
+        alert('✅ Enregistrement modifié avec succès !');
+    } catch (error) {
+        console.error('❌ Erreur lors de la modification:', error);
+        alert('Erreur lors de la modification');
+    }
 });
 
 // ========== SAUVEGARDE DE L'ENREGISTREMENT ==========
 
-function saveRecording() {
+async function saveRecording() {
     const recording = {
-        id: Date.now(),
         date: new Date().toLocaleString('fr-FR'),
+        timestamp: Date.now(),
         status: 'validated',
         metadata: {
             nom: document.getElementById('nomContributeur').value.trim(),
@@ -450,22 +461,56 @@ function saveRecording() {
         }
     };
 
-    recordings.unshift(recording);
-    localStorage.setItem('recordings', JSON.stringify(recordings));
+    try {
+        // Sauvegarder dans Firestore
+        const docRef = await db.collection('recordings').add(recording);
+        console.log('✅ Enregistrement sauvegardé dans Firestore avec ID:', docRef.id);
 
-    // Réinitialiser
-    tempMedias = { audios: [], videos: [], images: [], texts: [] };
-    updatePreview();
-    closeModal();
-    displayRecordings();
+        // Réinitialiser
+        tempMedias = { audios: [], videos: [], images: [], texts: [] };
+        updatePreview();
+        closeModal();
 
-    // Afficher le message de remerciement
-    showThankYouModal();
+        // Recharger les enregistrements depuis Firestore
+        await loadRecordingsFromFirestore();
+        displayRecordings();
+
+        // Afficher le message de remerciement
+        showThankYouModal();
+    } catch (error) {
+        console.error('❌ Erreur lors de la sauvegarde:', error);
+        alert('Erreur lors de la sauvegarde. Vérifiez la console.');
+    }
+}
+
+// ========== CHARGEMENT DEPUIS FIRESTORE ==========
+
+async function loadRecordingsFromFirestore() {
+    try {
+        const snapshot = await db.collection('recordings')
+            .orderBy('timestamp', 'desc')
+            .get();
+
+        recordings = [];
+        snapshot.forEach(doc => {
+            recordings.push({
+                id: doc.id, // ID Firestore
+                ...doc.data() // Toutes les données
+            });
+        });
+
+        console.log(`📥 ${recordings.length} enregistrement(s) chargé(s) depuis Firestore`);
+    } catch (error) {
+        console.error('❌ Erreur lors du chargement:', error);
+    }
 }
 
 // ========== AFFICHAGE DES ENREGISTREMENTS ==========
 
-function displayRecordings() {
+async function displayRecordings() {
+    // Charger depuis Firestore avant d'afficher
+    await loadRecordingsFromFirestore();
+
     const list = document.getElementById('recordingsList');
     const groupBySelect = document.getElementById('groupBySelect');
 
@@ -747,20 +792,27 @@ async function deleteMedia(type, mediaId, recordingId) {
     openRecordingView(recordingId);
 }
 
-function deleteRecording(id) {
+async function deleteRecording(id) {
     if (confirm('Voulez-vous vraiment supprimer cet enregistrement complet ?')) {
-        const recording = recordings.find(r => r.id === id);
-        if (recording) {
-            // Supprimer tous les blobs de IndexedDB
-            recording.medias.audios.forEach(a => deleteFromIndexedDB(a.id));
-            recording.medias.videos.forEach(v => deleteFromIndexedDB(v.id));
-            recording.medias.images.forEach(i => deleteFromIndexedDB(i.id));
-        }
+        try {
+            const recording = recordings.find(r => r.id === id);
+            if (recording) {
+                // Supprimer tous les blobs de IndexedDB (sera migré vers Storage plus tard)
+                recording.medias.audios.forEach(a => deleteFromIndexedDB(a.id));
+                recording.medias.videos.forEach(v => deleteFromIndexedDB(v.id));
+                recording.medias.images.forEach(i => deleteFromIndexedDB(i.id));
+            }
 
-        recordings = recordings.filter(r => r.id !== id);
-        localStorage.setItem('recordings', JSON.stringify(recordings));
-        displayRecordings();
-        document.getElementById('recordingFormModal').style.display = 'none';
+            // Supprimer de Firestore
+            await db.collection('recordings').doc(id).delete();
+            console.log('✅ Enregistrement supprimé de Firestore:', id);
+
+            await displayRecordings();
+            document.getElementById('recordingFormModal').style.display = 'none';
+        } catch (error) {
+            console.error('❌ Erreur lors de la suppression:', error);
+            alert('Erreur lors de la suppression');
+        }
     }
 }
 
