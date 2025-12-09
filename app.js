@@ -255,6 +255,34 @@ function closeModal() {
     validationForm.reset();
 }
 
+// ========== MODAL DE REMERCIEMENT ==========
+
+function showThankYouModal() {
+    const thankYouModal = document.getElementById('thankYouModal');
+    thankYouModal.style.display = 'flex';
+}
+
+function closeThankYouModal() {
+    const thankYouModal = document.getElementById('thankYouModal');
+    thankYouModal.style.display = 'none';
+}
+
+// Event listener pour fermer le modal de remerciement
+document.getElementById('thankYouClose').addEventListener('click', () => {
+    closeThankYouModal();
+    switchTab('donnees');
+});
+
+// Fermer aussi en cliquant sur le fond
+document.getElementById('thankYouModal').addEventListener('click', (e) => {
+    if (e.target.id === 'thankYouModal') {
+        closeThankYouModal();
+        switchTab('donnees');
+    }
+});
+
+// ========== SAUVEGARDE DE L'ENREGISTREMENT ==========
+
 function saveRecording() {
     const recording = {
         id: Date.now(),
@@ -284,10 +312,8 @@ function saveRecording() {
     closeModal();
     displayRecordings();
 
-    alert('✅ Enregistrement sauvegardé avec succès !');
-
-    // Passer à l'onglet Données
-    switchTab('donnees');
+    // Afficher le message de remerciement
+    showThankYouModal();
 }
 
 // ========== AFFICHAGE DES ENREGISTREMENTS ==========

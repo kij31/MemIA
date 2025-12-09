@@ -999,3 +999,78 @@ footer {
         padding: 16px 32px;
     }
 }
+
+/* ========== MODAL DE REMERCIEMENT ========== */
+.thank-you-modal {
+    max-width: 500px;
+    text-align: center;
+    padding: 40px 30px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.thank-you-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+
+.thank-you-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2196F3;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.thank-you-gif {
+    max-width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.btn-thank-you {
+    padding: 15px 50px;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+}
+
+.btn-thank-you:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.5);
+}
+
+.btn-thank-you:active {
+    transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+    .thank-you-modal {
+        padding: 30px 20px;
+    }
+
+    .thank-you-title {
+        font-size: 24px;
+    }
+
+    .thank-you-gif {
+        max-height: 200px;
+    }
+
+    .btn-thank-you {
+        padding: 12px 40px;
+        font-size: 16px;
+    }
+}
