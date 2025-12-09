@@ -18,12 +18,21 @@
         </header>
 
         <main>
+            <!-- Bouton Nouvel Enregistrement -->
+            <section class="media-section" style="text-align:center;">
+                <button id="newRecordingBtn" class="btn-new-recording">
+                    ➕ Nouvel Enregistrement
+                </button>
+                <p style="color:#666; margin-top:10px; font-size:14px;">
+                    Créez un enregistrement, puis ajoutez des médias (audio, vidéo, image, texte)
+                </p>
+            </section>
+
             <!-- Section Audio -->
             <section class="media-section">
                 <h2>🎤 Audio</h2>
                 <button id="audioBtn" class="capture-btn">Enregistrer Audio</button>
                 <div id="audioStatus" class="status"></div>
-                <audio id="audioPlayback" controls style="display:none;"></audio>
             </section>
 
             <!-- Section Vidéo -->
@@ -31,7 +40,6 @@
                 <h2>🎥 Vidéo</h2>
                 <button id="videoBtn" class="capture-btn">Enregistrer Vidéo</button>
                 <div id="videoStatus" class="status"></div>
-                <video id="videoPreview" controls style="display:none;"></video>
             </section>
 
             <!-- Section Image -->
@@ -40,7 +48,6 @@
                 <button id="imageBtn" class="capture-btn">Prendre une Photo</button>
                 <input type="file" id="imageInput" accept="image/*" capture="environment" style="display:none;">
                 <div id="imageStatus" class="status"></div>
-                <img id="imagePreview" style="display:none; max-width:100%; margin-top:10px;">
             </section>
 
             <!-- Section Texte -->
@@ -50,9 +57,6 @@
                 <button id="textBtn" class="capture-btn">Sauvegarder Texte</button>
                 <div id="textStatus" class="status"></div>
             </section>
-
-            <!-- Lecteur média -->
-            <div id="playerContainer" style="display:none; margin:20px 0;"></div>
 
             <!-- Liste des enregistrements -->
             <section class="media-section">
@@ -78,87 +82,69 @@
         </footer>
     </div>
 
-    <!-- Modal de validation -->
-    <div id="validationModal" class="modal">
-        <div class="modal-content">
+    <!-- Modal du Formulaire d'Enregistrement -->
+    <div id="recordingFormModal" class="modal">
+        <div class="modal-content modal-large">
             <div class="modal-header">
-                <h2>✓ Validation de l'enregistrement</h2>
-                <span id="modalClose" class="modal-close">&times;</span>
+                <h2>📦 Enregistrement Complet</h2>
+                <span id="formClose" class="modal-close">&times;</span>
             </div>
-            <form id="validationForm">
-                <div class="form-group">
-                    <label for="nomContributeur">Nom <span class="required">*</span></label>
-                    <input
-                        type="text"
-                        id="nomContributeur"
-                        list="nomSuggestions"
-                        required
-                        placeholder="Nom du contributeur"
-                    >
-                    <datalist id="nomSuggestions"></datalist>
+
+            <div class="modal-body">
+                <!-- Zone de lecture -->
+                <div id="formPlayerContainer" style="display:none; margin-bottom:20px;"></div>
+
+                <!-- Médias -->
+                <div id="formMediasContainer"></div>
+
+                <!-- Métadonnées -->
+                <div class="form-metadata">
+                    <h3>✓ Métadonnées de validation</h3>
+
+                    <div class="form-group">
+                        <label for="formNom">Nom *</label>
+                        <input type="text" id="formNom" placeholder="Nom du contributeur">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formPrenom">Prénom</label>
+                        <input type="text" id="formPrenom" placeholder="Prénom du contributeur">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formOccasion">Occasion *</label>
+                        <select id="formOccasion">
+                            <option value="">-- Sélectionner --</option>
+                            <option value="Mariage">Mariage</option>
+                            <option value="Anniversaire">Anniversaire</option>
+                            <option value="Baptême">Baptême</option>
+                            <option value="Communion">Communion</option>
+                            <option value="Fête familiale">Fête familiale</option>
+                            <option value="Réunion">Réunion</option>
+                            <option value="Conférence">Conférence</option>
+                            <option value="Interview">Interview</option>
+                            <option value="Témoignage">Témoignage</option>
+                            <option value="Formation">Formation</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formDateEvenement">Date de l'événement</label>
+                        <input type="date" id="formDateEvenement">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formLieuEvenement">Lieu de l'événement</label>
+                        <input type="text" id="formLieuEvenement" placeholder="Ville, pays...">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="prenomContributeur">Prénom</label>
-                    <input
-                        type="text"
-                        id="prenomContributeur"
-                        placeholder="Prénom du contributeur"
-                    >
+                <!-- Actions -->
+                <div class="form-actions-bottom">
+                    <button id="formDelete" class="btn-delete-full">🗑️ Supprimer tout</button>
+                    <button id="formSave" class="btn-validate-full">✓ Valider l'enregistrement</button>
                 </div>
-
-                <div class="form-group">
-                    <label for="occasionEvenement">Occasion <span class="required">*</span></label>
-                    <select id="occasionEvenement" required>
-                        <option value="">-- Sélectionner une occasion --</option>
-                        <option value="Mariage">Mariage</option>
-                        <option value="Anniversaire">Anniversaire</option>
-                        <option value="Baptême">Baptême</option>
-                        <option value="Communion">Communion</option>
-                        <option value="Fête familiale">Fête familiale</option>
-                        <option value="Réunion">Réunion</option>
-                        <option value="Conférence">Conférence</option>
-                        <option value="Interview">Interview</option>
-                        <option value="Témoignage">Témoignage</option>
-                        <option value="Formation">Formation</option>
-                        <option value="Autre">Autre</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="dateEvenement">Date de l'événement</label>
-                    <input
-                        type="date"
-                        id="dateEvenement"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="lieuEvenement">Lieu de l'événement</label>
-                    <input
-                        type="text"
-                        id="lieuEvenement"
-                        placeholder="Ville, pays..."
-                    >
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
-                    <button type="submit" class="btn-submit">Valider ✓</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Popup de confirmation de validation -->
-    <div id="confirmValidationPopup" class="popup-overlay">
-        <div class="popup-content">
-            <div class="popup-icon">✅</div>
-            <h3>Enregistrement sauvegardé !</h3>
-            <p>Voulez-vous valider cet enregistrement maintenant ?</p>
-            <div class="popup-actions">
-                <button id="popupNo" class="popup-btn popup-btn-secondary">Plus tard</button>
-                <button id="popupYes" class="popup-btn popup-btn-primary">Valider maintenant</button>
             </div>
         </div>
     </div>
