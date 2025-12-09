@@ -589,20 +589,28 @@ function displayByStatus() {
 }
 
 function createRecordingCard(rec) {
+    // Protection contre les données mal formées
+    if (!rec.medias) {
+        rec.medias = { audios: [], videos: [], images: [], texts: [] };
+    }
+    if (!rec.metadata) {
+        rec.metadata = {};
+    }
+
     const totalMedias =
-        rec.medias.audios.length +
-        rec.medias.videos.length +
-        rec.medias.images.length +
-        rec.medias.texts.length;
+        (rec.medias.audios?.length || 0) +
+        (rec.medias.videos?.length || 0) +
+        (rec.medias.images?.length || 0) +
+        (rec.medias.texts?.length || 0);
 
     const mediaSummary = [
-        rec.medias.audios.length > 0 ? `🎤 ${rec.medias.audios.length}` : '',
-        rec.medias.videos.length > 0 ? `🎥 ${rec.medias.videos.length}` : '',
-        rec.medias.images.length > 0 ? `📷 ${rec.medias.images.length}` : '',
-        rec.medias.texts.length > 0 ? `📝 ${rec.medias.texts.length}` : ''
+        rec.medias.audios?.length > 0 ? `🎤 ${rec.medias.audios.length}` : '',
+        rec.medias.videos?.length > 0 ? `🎥 ${rec.medias.videos.length}` : '',
+        rec.medias.images?.length > 0 ? `📷 ${rec.medias.images.length}` : '',
+        rec.medias.texts?.length > 0 ? `📝 ${rec.medias.texts.length}` : ''
     ].filter(s => s).join(' | ');
 
-    const contributeurInfo = rec.metadata.nom
+    const contributeurInfo = rec.metadata?.nom
         ? `<div class="metadata-preview">
               <strong>👤 ${rec.metadata.nom} ${rec.metadata.prenom}</strong>
               ${rec.metadata.occasion ? `<br><small>📌 ${rec.metadata.occasion}</small>` : ''}
@@ -611,11 +619,11 @@ function createRecordingCard(rec) {
 
     // Bouton d'édition pour l'admin
     const editButton = isAdminLoggedIn
-        ? `<button class="btn-edit-recording" onclick="event.stopPropagation(); openEditRecordingModal(${rec.id})">✏️ Modifier</button>`
+        ? `<button class="btn-edit-recording" onclick="event.stopPropagation(); openEditRecordingModal('${rec.id}')">✏️ Modifier</button>`
         : '';
 
     return `
-        <div class="recording-item ${rec.status}" onclick="openRecordingView(${rec.id})" style="cursor:pointer;">
+        <div class="recording-item ${rec.status}" onclick="openRecordingView('${rec.id}')" style="cursor:pointer;">
             <div class="recording-header">
                 ${getStatusIcon(rec.status)}
                 <span class="recording-type">📦 Enregistrement complet</span>
