@@ -884,3 +884,118 @@ footer {
         width: 100%;
     }
 }
+
+/* ========== ONGLETS ========== */
+.tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 3px solid #e9ecef;
+    margin: 0;
+    padding: 0;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 18px 24px;
+    border: none;
+    background: #f8f9fa;
+    color: #666;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+}
+
+.tab-btn:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #2196F3;
+    border-bottom: 3px solid #2196F3;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ========== BOUTON ENREGISTRER ========== */
+.btn-save-recording {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 20px 48px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+.btn-save-recording:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+}
+
+/* ========== APERÇU DES MÉDIAS ========== */
+.media-preview {
+    background: #e3f2fd;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #2196F3;
+}
+
+.preview-summary {
+    text-align: center;
+}
+
+.preview-list {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0 0;
+    display: grid;
+    gap: 10px;
+}
+
+.preview-list li {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ========== METADATA DISPLAY ========== */
+.metadata-display {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.metadata-display p {
+    margin: 8px 0;
+    font-size: 15px;
+}
+
+/* ========== RESPONSIVE ONGLETS ========== */
+@media (max-width: 600px) {
+    .tab-btn {
+        font-size: 14px;
+        padding: 15px 12px;
+    }
+
+    .btn-save-recording {
+        font-size: 18px;
+        padding: 16px 32px;
+    }
+}

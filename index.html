@@ -17,62 +17,79 @@
             <p class="subtitle">Collecte d'enregistrements multimédia</p>
         </header>
 
+        <!-- Onglets -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="enregistrer">📝 Enregistrer</button>
+            <button class="tab-btn" data-tab="donnees">📋 Données</button>
+        </div>
+
         <main>
-            <!-- Bouton Nouvel Enregistrement -->
-            <section class="media-section" style="text-align:center;">
-                <button id="newRecordingBtn" class="btn-new-recording">
-                    ➕ Nouvel Enregistrement
-                </button>
-                <p style="color:#666; margin-top:10px; font-size:14px;">
-                    Créez un enregistrement, puis ajoutez des médias (audio, vidéo, image, texte)
-                </p>
-            </section>
+            <!-- ONGLET ENREGISTRER -->
+            <div id="tab-enregistrer" class="tab-content active">
+                <!-- Section Audio -->
+                <section class="media-section">
+                    <h2>🎤 Audio</h2>
+                    <button id="audioBtn" class="capture-btn">Enregistrer Audio</button>
+                    <div id="audioStatus" class="status"></div>
+                </section>
 
-            <!-- Section Audio -->
-            <section class="media-section">
-                <h2>🎤 Audio</h2>
-                <button id="audioBtn" class="capture-btn">Enregistrer Audio</button>
-                <div id="audioStatus" class="status"></div>
-            </section>
+                <!-- Section Vidéo -->
+                <section class="media-section">
+                    <h2>🎥 Vidéo</h2>
+                    <button id="videoBtn" class="capture-btn">Enregistrer Vidéo</button>
+                    <div id="videoStatus" class="status"></div>
+                </section>
 
-            <!-- Section Vidéo -->
-            <section class="media-section">
-                <h2>🎥 Vidéo</h2>
-                <button id="videoBtn" class="capture-btn">Enregistrer Vidéo</button>
-                <div id="videoStatus" class="status"></div>
-            </section>
+                <!-- Section Image -->
+                <section class="media-section">
+                    <h2>📷 Image</h2>
+                    <button id="imageBtn" class="capture-btn">Prendre une Photo</button>
+                    <input type="file" id="imageInput" accept="image/*" capture="environment" style="display:none;">
+                    <div id="imageStatus" class="status"></div>
+                </section>
 
-            <!-- Section Image -->
-            <section class="media-section">
-                <h2>📷 Image</h2>
-                <button id="imageBtn" class="capture-btn">Prendre une Photo</button>
-                <input type="file" id="imageInput" accept="image/*" capture="environment" style="display:none;">
-                <div id="imageStatus" class="status"></div>
-            </section>
+                <!-- Section Texte -->
+                <section class="media-section">
+                    <h2>📝 Texte</h2>
+                    <textarea id="textInput" placeholder="Entrez votre texte ici..." rows="5"></textarea>
+                    <button id="textBtn" class="capture-btn">Ajouter Texte</button>
+                    <div id="textStatus" class="status"></div>
+                </section>
 
-            <!-- Section Texte -->
-            <section class="media-section">
-                <h2>📝 Texte</h2>
-                <textarea id="textInput" placeholder="Entrez votre texte ici..." rows="5"></textarea>
-                <button id="textBtn" class="capture-btn">Sauvegarder Texte</button>
-                <div id="textStatus" class="status"></div>
-            </section>
+                <!-- Aperçu des médias ajoutés -->
+                <section class="media-section" id="previewSection" style="display:none;">
+                    <h2>📦 Médias ajoutés à cet enregistrement</h2>
+                    <div id="mediaPreview" class="media-preview"></div>
+                </section>
 
-            <!-- Liste des enregistrements -->
-            <section class="media-section">
-                <div class="recordings-header">
-                    <h2>📋 Mes Enregistrements</h2>
-                    <div class="filter-controls">
-                        <label for="groupBySelect">Organiser par :</label>
-                        <select id="groupBySelect" class="group-select">
-                            <option value="date">Date</option>
-                            <option value="contributeur">Contributeur</option>
-                            <option value="status">Statut</option>
-                        </select>
+                <!-- Bouton Enregistrer en fin de formulaire -->
+                <section class="media-section" style="text-align:center;">
+                    <button id="saveRecordingBtn" class="btn-save-recording" style="display:none;">
+                        ✓ Enregistrer
+                    </button>
+                    <p style="color:#666; margin-top:10px; font-size:14px;">
+                        Ajoutez des médias ci-dessus, puis cliquez sur "Enregistrer"
+                    </p>
+                </section>
+            </div>
+
+            <!-- ONGLET DONNÉES -->
+            <div id="tab-donnees" class="tab-content">
+                <section class="media-section">
+                    <div class="recordings-header">
+                        <h2>📋 Mes Enregistrements</h2>
+                        <div class="filter-controls">
+                            <label for="groupBySelect">Organiser par :</label>
+                            <select id="groupBySelect" class="group-select">
+                                <option value="date">Date</option>
+                                <option value="contributeur">Contributeur</option>
+                                <option value="status">Statut</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div id="recordingsList" class="recordings-list"></div>
-            </section>
+                    <div id="recordingsList" class="recordings-list"></div>
+                </section>
+            </div>
         </main>
 
         <footer>
@@ -82,7 +99,77 @@
         </footer>
     </div>
 
-    <!-- Modal du Formulaire d'Enregistrement -->
+    <!-- Popup de saisie des métadonnées -->
+    <div id="validationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✓ Informations du contributeur</h2>
+                <span id="modalClose" class="modal-close">&times;</span>
+            </div>
+            <form id="validationForm">
+                <div class="form-group">
+                    <label for="nomContributeur">Nom <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="nomContributeur"
+                        required
+                        placeholder="Nom du contributeur"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="prenomContributeur">Prénom</label>
+                    <input
+                        type="text"
+                        id="prenomContributeur"
+                        placeholder="Prénom du contributeur"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="occasionEvenement">Occasion <span class="required">*</span></label>
+                    <select id="occasionEvenement" required>
+                        <option value="">-- Sélectionner une occasion --</option>
+                        <option value="Mariage">Mariage</option>
+                        <option value="Anniversaire">Anniversaire</option>
+                        <option value="Baptême">Baptême</option>
+                        <option value="Communion">Communion</option>
+                        <option value="Fête familiale">Fête familiale</option>
+                        <option value="Réunion">Réunion</option>
+                        <option value="Conférence">Conférence</option>
+                        <option value="Interview">Interview</option>
+                        <option value="Témoignage">Témoignage</option>
+                        <option value="Formation">Formation</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateEvenement">Date de l'événement</label>
+                    <input
+                        type="date"
+                        id="dateEvenement"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="lieuEvenement">Lieu de l'événement</label>
+                    <input
+                        type="text"
+                        id="lieuEvenement"
+                        placeholder="Ville, pays..."
+                    >
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
+                    <button type="submit" class="btn-submit">Valider ✓</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de visualisation d'un enregistrement -->
     <div id="recordingFormModal" class="modal">
         <div class="modal-content modal-large">
             <div class="modal-header">
@@ -100,50 +187,12 @@
                 <!-- Métadonnées -->
                 <div class="form-metadata">
                     <h3>✓ Métadonnées de validation</h3>
-
-                    <div class="form-group">
-                        <label for="formNom">Nom *</label>
-                        <input type="text" id="formNom" placeholder="Nom du contributeur">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="formPrenom">Prénom</label>
-                        <input type="text" id="formPrenom" placeholder="Prénom du contributeur">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="formOccasion">Occasion *</label>
-                        <select id="formOccasion">
-                            <option value="">-- Sélectionner --</option>
-                            <option value="Mariage">Mariage</option>
-                            <option value="Anniversaire">Anniversaire</option>
-                            <option value="Baptême">Baptême</option>
-                            <option value="Communion">Communion</option>
-                            <option value="Fête familiale">Fête familiale</option>
-                            <option value="Réunion">Réunion</option>
-                            <option value="Conférence">Conférence</option>
-                            <option value="Interview">Interview</option>
-                            <option value="Témoignage">Témoignage</option>
-                            <option value="Formation">Formation</option>
-                            <option value="Autre">Autre</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="formDateEvenement">Date de l'événement</label>
-                        <input type="date" id="formDateEvenement">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="formLieuEvenement">Lieu de l'événement</label>
-                        <input type="text" id="formLieuEvenement" placeholder="Ville, pays...">
-                    </div>
+                    <div class="metadata-display" id="metadataDisplay"></div>
                 </div>
 
                 <!-- Actions -->
                 <div class="form-actions-bottom">
                     <button id="formDelete" class="btn-delete-full">🗑️ Supprimer tout</button>
-                    <button id="formSave" class="btn-validate-full">✓ Valider l'enregistrement</button>
                 </div>
             </div>
         </div>
