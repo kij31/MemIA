@@ -666,12 +666,17 @@ function createMediaViewItem(type, media, recordingId) {
         ? `<div class="text-content">${media.data.substring(0, 100)}...</div>`
         : `<div class="media-date">${media.date}</div>`;
 
+    // Bouton supprimer visible uniquement pour l'admin
+    const deleteButton = isAdminLoggedIn
+        ? `<button onclick="deleteMedia('${type}', ${media.id}, ${recordingId})" class="btn-delete-media">🗑️ Supprimer</button>`
+        : '';
+
     return `
         <div class="media-item">
             ${preview}
             <div class="media-actions">
                 <button onclick="playMedia('${type}', ${media.id})" class="btn-play-media">▶️ Lire</button>
-                <button onclick="deleteMedia('${type}', ${media.id}, ${recordingId})" class="btn-delete-media">🗑️ Supprimer</button>
+                ${deleteButton}
             </div>
         </div>
     `;
