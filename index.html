@@ -13,8 +13,15 @@
 <body>
     <div class="container">
         <header>
-            <h1>📱 MemIA</h1>
-            <p class="subtitle">Collecte d'enregistrements multimédia</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                <div>
+                    <h1>📱 MemIA</h1>
+                    <p class="subtitle">Collecte d'enregistrements multimédia</p>
+                </div>
+                <div id="adminSection" style="display:flex; align-items:center; gap:10px;">
+                    <!-- Contenu géré par JavaScript -->
+                </div>
+            </div>
         </header>
 
         <!-- Onglets -->
@@ -206,6 +213,120 @@
                 <img src="assets/ThankYouGIF.gif" alt="Merci" class="thank-you-gif">
                 <button id="thankYouClose" class="btn-thank-you">OK</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal de login administrateur -->
+    <div id="adminLoginModal" class="modal">
+        <div class="modal-content admin-login-modal">
+            <div class="modal-header">
+                <h2>🔐 Connexion Administrateur</h2>
+                <span id="adminLoginClose" class="modal-close">&times;</span>
+            </div>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminName">Nom</label>
+                    <input
+                        type="text"
+                        id="adminName"
+                        required
+                        placeholder="Nom d'administrateur"
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="adminPassword">Mot de passe</label>
+                    <input
+                        type="password"
+                        id="adminPassword"
+                        required
+                        placeholder="Mot de passe"
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <div id="adminLoginError" class="admin-error" style="display:none;">
+                    ❌ Identifiants incorrects
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAdminLoginModal()">Annuler</button>
+                    <button type="submit" class="btn-submit">Se connecter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal d'édition d'enregistrement -->
+    <div id="editRecordingModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>✏️ Modifier l'enregistrement</h2>
+                <span id="editModalClose" class="modal-close">&times;</span>
+            </div>
+            <form id="editRecordingForm">
+                <input type="hidden" id="editRecordingId">
+
+                <div class="form-group">
+                    <label for="editNom">Nom <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="editNom"
+                        required
+                        placeholder="Nom du contributeur"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="editPrenom">Prénom</label>
+                    <input
+                        type="text"
+                        id="editPrenom"
+                        placeholder="Prénom du contributeur"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="editOccasion">Occasion <span class="required">*</span></label>
+                    <select id="editOccasion" required>
+                        <option value="">-- Sélectionner une occasion --</option>
+                        <option value="Mariage">Mariage</option>
+                        <option value="Anniversaire">Anniversaire</option>
+                        <option value="Baptême">Baptême</option>
+                        <option value="Communion">Communion</option>
+                        <option value="Fête familiale">Fête familiale</option>
+                        <option value="Réunion">Réunion</option>
+                        <option value="Conférence">Conférence</option>
+                        <option value="Interview">Interview</option>
+                        <option value="Témoignage">Témoignage</option>
+                        <option value="Formation">Formation</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDate">Date de l'événement</label>
+                    <input
+                        type="date"
+                        id="editDate"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="editLieu">Lieu de l'événement</label>
+                    <input
+                        type="text"
+                        id="editLieu"
+                        placeholder="Ville, pays..."
+                    >
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Annuler</button>
+                    <button type="submit" class="btn-submit">Sauvegarder</button>
+                </div>
+            </form>
         </div>
     </div>
 

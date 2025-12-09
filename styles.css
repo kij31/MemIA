@@ -1074,3 +1074,71 @@ footer {
         font-size: 16px;
     }
 }
+
+/* ========== MODAL DE LOGIN ADMINISTRATEUR ========== */
+.admin-login-modal {
+    max-width: 400px;
+}
+
+.admin-error {
+    background: #ffebee;
+    color: #c62828;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #c62828;
+    margin: 15px 0;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Bouton Edit sur les cartes */
+.btn-edit-recording {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-edit-recording:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+}
+
+/* Badge admin */
+.admin-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+/* Bouton déconnexion admin */
+.btn-logout-admin {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 10px;
+}
+
+.btn-logout-admin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+}

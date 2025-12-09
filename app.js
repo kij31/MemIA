@@ -281,6 +281,153 @@ document.getElementById('thankYouModal').addEventListener('click', (e) => {
     }
 });
 
+// ========== GESTION ADMINISTRATEUR ==========
+
+let isAdminLoggedIn = false;
+let currentEditingRecordingId = null;
+
+// Identifiants admin (à modifier selon vos besoins)
+const ADMIN_CREDENTIALS = {
+    nom: 'admin',
+    password: 'admin123'
+};
+
+// Mettre à jour l'affichage de la section admin
+function updateAdminSection() {
+    const adminSection = document.getElementById('adminSection');
+
+    if (isAdminLoggedIn) {
+        adminSection.innerHTML = `
+            <span class="admin-badge">🔐 Admin</span>
+            <button class="btn-logout-admin" onclick="logoutAdmin()">Déconnexion</button>
+        `;
+    } else {
+        adminSection.innerHTML = `
+            <button class="btn-edit-recording" onclick="openAdminLoginModal()">🔐 Connexion Admin</button>
+        `;
+    }
+}
+
+function openAdminLoginModal(recordingId = null) {
+    currentEditingRecordingId = recordingId;
+    const adminLoginModal = document.getElementById('adminLoginModal');
+    const adminLoginError = document.getElementById('adminLoginError');
+    adminLoginError.style.display = 'none';
+    document.getElementById('adminLoginForm').reset();
+    adminLoginModal.style.display = 'flex';
+}
+
+function closeAdminLoginModal() {
+    const adminLoginModal = document.getElementById('adminLoginModal');
+    adminLoginModal.style.display = 'none';
+    currentEditingRecordingId = null;
+}
+
+// Event listener pour le formulaire de login admin
+document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const nom = document.getElementById('adminName').value.trim();
+    const password = document.getElementById('adminPassword').value;
+    const adminLoginError = document.getElementById('adminLoginError');
+
+    if (nom === ADMIN_CREDENTIALS.nom && password === ADMIN_CREDENTIALS.password) {
+        isAdminLoggedIn = true;
+        closeAdminLoginModal();
+
+        // Mettre à jour la section admin
+        updateAdminSection();
+
+        // Si on essayait d'éditer un enregistrement, l'ouvrir maintenant
+        if (currentEditingRecordingId !== null) {
+            openEditRecordingModal(currentEditingRecordingId);
+            currentEditingRecordingId = null;
+        }
+
+        // Rafraîchir l'affichage pour montrer les boutons d'édition
+        displayRecordings();
+
+        alert('✅ Connecté en tant qu\'administrateur');
+    } else {
+        adminLoginError.style.display = 'block';
+        document.getElementById('adminPassword').value = '';
+    }
+});
+
+// Fermer le modal de login admin
+document.getElementById('adminLoginClose').addEventListener('click', closeAdminLoginModal);
+
+// Déconnexion admin
+function logoutAdmin() {
+    if (confirm('Voulez-vous vous déconnecter ?')) {
+        isAdminLoggedIn = false;
+        updateAdminSection();
+        displayRecordings();
+        alert('Déconnecté');
+    }
+}
+
+// ========== ÉDITION D'ENREGISTREMENT ==========
+
+function openEditRecordingModal(recordingId) {
+    // Vérifier si l'admin est connecté
+    if (!isAdminLoggedIn) {
+        openAdminLoginModal(recordingId);
+        return;
+    }
+
+    // Trouver l'enregistrement
+    const recording = recordings.find(r => r.id === recordingId);
+    if (!recording) return;
+
+    // Remplir le formulaire
+    document.getElementById('editRecordingId').value = recording.id;
+    document.getElementById('editNom').value = recording.metadata.nom || '';
+    document.getElementById('editPrenom').value = recording.metadata.prenom || '';
+    document.getElementById('editOccasion').value = recording.metadata.occasion || '';
+    document.getElementById('editDate').value = recording.metadata.dateEvenement || '';
+    document.getElementById('editLieu').value = recording.metadata.lieuEvenement || '';
+
+    // Ouvrir le modal
+    const editModal = document.getElementById('editRecordingModal');
+    editModal.style.display = 'flex';
+}
+
+function closeEditModal() {
+    const editModal = document.getElementById('editRecordingModal');
+    editModal.style.display = 'none';
+    document.getElementById('editRecordingForm').reset();
+}
+
+// Event listener pour fermer le modal d'édition
+document.getElementById('editModalClose').addEventListener('click', closeEditModal);
+
+// Event listener pour sauvegarder les modifications
+document.getElementById('editRecordingForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const recordingId = parseInt(document.getElementById('editRecordingId').value);
+    const recording = recordings.find(r => r.id === recordingId);
+
+    if (!recording) return;
+
+    // Mettre à jour les métadonnées
+    recording.metadata.nom = document.getElementById('editNom').value.trim();
+    recording.metadata.prenom = document.getElementById('editPrenom').value.trim();
+    recording.metadata.occasion = document.getElementById('editOccasion').value;
+    recording.metadata.dateEvenement = document.getElementById('editDate').value;
+    recording.metadata.lieuEvenement = document.getElementById('editLieu').value.trim();
+
+    // Sauvegarder dans localStorage
+    localStorage.setItem('recordings', JSON.stringify(recordings));
+
+    // Fermer le modal et rafraîchir
+    closeEditModal();
+    displayRecordings();
+
+    alert('✅ Enregistrement modifié avec succès !');
+});
+
 // ========== SAUVEGARDE DE L'ENREGISTREMENT ==========
 
 function saveRecording() {
@@ -417,12 +564,18 @@ function createRecordingCard(rec) {
            </div>`
         : '';
 
+    // Bouton d'édition pour l'admin
+    const editButton = isAdminLoggedIn
+        ? `<button class="btn-edit-recording" onclick="event.stopPropagation(); openEditRecordingModal(${rec.id})">✏️ Modifier</button>`
+        : '';
+
     return `
         <div class="recording-item ${rec.status}" onclick="openRecordingView(${rec.id})" style="cursor:pointer;">
             <div class="recording-header">
                 ${getStatusIcon(rec.status)}
                 <span class="recording-type">📦 Enregistrement complet</span>
                 <small class="recording-date">${rec.date}</small>
+                ${editButton}
             </div>
             ${contributeurInfo}
             <div class="media-summary">
@@ -673,5 +826,6 @@ async function deleteFromIndexedDB(id) {
 // ========== INITIALISATION ==========
 
 document.getElementById('groupBySelect').addEventListener('change', displayRecordings);
+updateAdminSection();
 displayRecordings();
 updatePreview();
