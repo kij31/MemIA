@@ -236,15 +236,26 @@ const modal = document.getElementById('validationModal');
 const modalClose = document.getElementById('modalClose');
 const validationForm = document.getElementById('validationForm');
 
-modalClose.addEventListener('click', closeModal);
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-});
+// Attacher les event listeners seulement si les éléments existent
+if (modalClose) {
+    modalClose.addEventListener('click', closeModal);
+}
 
-validationForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    saveRecording();
-});
+if (modal) {
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+}
+
+if (validationForm) {
+    validationForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        saveRecording();
+    });
+    console.log('✅ Event listener validationForm attaché');
+} else {
+    console.error('❌ Formulaire validationForm non trouvé');
+}
 
 function openValidationModal() {
     modal.style.display = 'flex';
